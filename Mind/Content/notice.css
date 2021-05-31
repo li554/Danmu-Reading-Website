@@ -5,11 +5,6 @@ body{
 }
 .notice{
     margin-top: 80px;
-    display: flex;
-    justify-content: space-evenly;
-}
-.notice-left,.notice-right{
-    flex: 1;
 }
 ul {
     list-style: none;
@@ -41,4 +36,7 @@ ul {
     position: relative;
     width: 300px;
     margin-right: 20px;
+}
+.el-table--scrollable-y .el-table__body-wrapper{
+    overflow-y: hidden;
 }

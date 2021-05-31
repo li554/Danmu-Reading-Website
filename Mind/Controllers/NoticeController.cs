@@ -10,10 +10,13 @@ namespace Mind.Controllers
         private readonly NoticeService _service = new NoticeService();
         public ActionResult GetNotices()
         {
+            var pageIndex = Request["pageIndex"]!=null?int.Parse(Request["pageIndex"]):1;
+            var pageSize = Request["pageSize"] != null?int.Parse(Request["pageSize"]):10;
             var filter = Request["filter"];
-            var notices =  _service.GetNotices(filter);
+            var notices = _service.GetNotices(pageIndex,pageSize,filter,out var total);
             var array = JArray.FromObject(notices);
-            return Content(array.ToString());
+            var obj = new JObject {{"notices", array}, {"total", total}};
+            return Content(obj.ToString());
         }
 
         public ActionResult AddNotice()

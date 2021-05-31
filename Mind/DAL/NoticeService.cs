@@ -8,14 +8,17 @@ namespace Mind.DAL
     {
         private readonly Database _database = new Database();
 
-        public List<Notice> GetNotices(string filter)
+        public List<Notice> GetNotices(int pageIndex, int pageSize, string filter, out int total)
         {
             var notices = new List<Notice>();
+            total = 0;
             try
             {
                 _database.Open();
                 filter = filter ?? "";
-                var sql = $"select * from book_schema.t_notice where n_title like '%{filter}%' or n_content like '%{filter}%' or u_email like '%{filter}%' order by id desc";
+                var sql = $"select * into temptable from book_schema.t_notice " +
+                          $"where n_title like '%{filter}%' or n_content like '%{filter}%' or u_email like '%{filter}%' order by id desc;" +
+                          $"select top ({pageSize}) * from temptable where id not in(select top (({pageIndex}-1)*{pageSize}) id from temptable order by id) order by id;";
                 var noticeReader = _database.Fetch(sql);
                 while (noticeReader.Read())
                 {
@@ -25,10 +28,16 @@ namespace Mind.DAL
                     var nContent = (string) noticeReader["n_content"];
                     var nTime = (DateTime) noticeReader["n_time"];
                     var nTitle = (string) noticeReader["n_title"];
-                    var notice = new Notice(id,uEmail, nLeft, nContent, nTime,nTitle);
+                    var notice = new Notice(id, uEmail, nLeft, nContent, nTime, nTitle);
                     notices.Add(notice);
                 }
                 noticeReader.Close();
+                sql = $"select count(*) as total from temptable";
+                var totalReader = _database.Fetch(sql);
+                total = totalReader.Read() ? (int) totalReader["total"] : 0;
+                totalReader.Close();
+                sql = $"drop table temptable";
+                _database.Update(sql);
                 _database.Close();
                 return notices;
             }
