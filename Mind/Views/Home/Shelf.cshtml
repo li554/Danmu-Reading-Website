@@ -1,0 +1,114 @@
+﻿<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>书架</title>
+    <link rel="stylesheet" href="~/Content/ElementUI/element-ui.css">
+    <link rel="stylesheet" href="~/Content/shelf.css">
+    <script src="~/Scripts/vue.min.js"></script>
+    <script src="~/Scripts/axios.min.js"></script>
+    <script src="~/Scripts/ElementUI/element-ui.js"></script>
+</head>
+<body>
+<div id="app">
+  @RenderPage("~/Views/Shared/header.cshtml")
+  <div class="shelf">
+    <el-row style="width: 100%;margin: 0" :gutter="60">
+      <el-col v-for="book in books" :key="book.id" :span="8">
+        <el-card style="margin-bottom: 20px">
+          <div class="grid-content">
+            <el-image :src="book.url"></el-image>
+            <div class="grid-item-info">
+              <span>{{book.author}}</span>
+              <span>{{book.name}}</span>
+              <div>{{book.intro.trim()}}</div>
+            </div>
+          </div>
+          <div class="grid-bottom-bar">
+            <el-button type="text" v-on:click="go('detail',book)" class="reg_link">详情</el-button>
+            <el-button type="text" v-on:click="go('read',book)" class="reg_link">阅读</el-button>
+          </div>
+        </el-card>
+      </el-col>
+    </el-row>
+  </div>
+</div>
+<script>
+new Vue({
+  el: "#app",
+  data(){
+    return{
+      state:"",
+      hasLogin: false,
+      user:{
+        name:"guest",
+        avatar:"/Content/images/img.png"
+      },
+      books:[]
+    }
+  },
+  methods:{
+    handleSearchSelect(item) {
+      this.go('detail',item);
+    },
+    querySearchAsync(queryString, cb) {
+      axios({
+            method: 'get',
+            url: '/Index/GetSearchBooks?query='+queryString+"&limit=10"
+          })
+              .then(res => {
+                console.log(res);
+                cb(res.data);
+              })
+              .catch(err => {
+                console.log(err);
+              });
+    },
+    go(name,book){
+      //重置localStorage的section信息，加载为最新章节
+      localStorage.setItem("book",JSON.stringify(book));
+      localStorage.setItem("section",JSON.stringify(book.section))
+      window.open("/Home/"+name);
+    },
+    getShelfBooks(){
+      const that = this;
+      axios({
+          method: 'get',
+          url: "/Shelf/GetShelfBooks?email="+localStorage.getItem("email")
+        })
+            .then(res => {
+              console.log(res.data);
+              that.books = res.data;
+            })
+            .catch(err => {
+              console.log(err);
+            });
+    }
+  },
+  created() {
+    //检查是否登录
+    const email = localStorage.getItem("email");
+    if (email!=undefined&&email!=""&&'@Session["email"]'!=''){
+        this.hasLogin = true;
+        this.user.name = localStorage.getItem("name");
+    }else{
+      this.hasLogin = false;
+    }
+    //根据用户id获取书架数据
+    const that = this;
+    document.addEventListener('visibilitychange', function() {
+        const isHidden = document.hidden;
+        console.log(document.visibilityState)
+        if (!isHidden) {
+            that.getShelfBooks();
+        }
+    });
+  },
+  mounted() {
+    this.getShelfBooks();
+  }
+})
+</script>
+</body>
+</html>

@@ -1,0 +1,72 @@
+﻿html{
+    height: 100%;
+}
+body{
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    --themeColor:#000;
+    --themeContentBackground:#eeeded;
+    --themeBtnBackground:#fff;
+    --themeBtnColor:#000;
+    --themeBodyBackground:#eeeded;
+}
+::selection {
+    background: black;
+    color: white;
+}
+
+#app{
+    width: 80%;
+    margin: 60px auto;
+    user-select: none;
+}
+
+.header{
+    flex-direction: row;
+    display: flex;
+    position: fixed;
+    background: white;
+    width: 100%;
+    left: 0;
+    box-shadow: 0 0 5px grey;
+    z-index: 10;
+    top: 0;
+}
+
+.header .header-logo {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    width: 320px;
+    height: 60px;
+}
+
+.header .header-logo .el-image {
+    margin-right: 10px;
+    margin-left: 40px;
+    height: 100%;
+    width: 50px;
+}
+
+.header .header-logo span.header-title {
+    font-size: 1.6em;
+    font-weight: bold;
+    font-family: 华光彩云_CNKI,serif;
+}
+
+.header .search-bar {
+    width: 100%;
+    height: 80px;
+}
+.user-info{
+    margin-left: 20px;
+}
+.user-info .user-avator {
+    margin-right: 10px;
+    border-radius: 50%;
+}
+
+.log_reg .log_link {
+    margin-right: 20px;
+}

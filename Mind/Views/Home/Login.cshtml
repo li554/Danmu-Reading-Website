@@ -1,0 +1,177 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <title>登录</title>
+    <link rel="stylesheet" href="~/Content/login.css"/>
+    <script src="~/Scripts/vue.min.js"></script>
+    <script src="~/Scripts/axios.min.js"></script>
+    <script src="~/Scripts/ElementUI/element-ui.js"></script>
+</head>
+<body>
+<div id="login">
+    <div class="cotn_principal">
+        <div class="cont_centrar">
+            <div class="cont_login">
+                <div class="cont_info_log_sign_up">
+                    <div class="col_md_login">
+                        <div class="cont_ba_opcitiy">
+                            <h2>LOGIN</h2>
+                            <p>Lorem ipsum dolor sit amet, consectetur.</p>
+                            <button class="btn_login" v-on:click="cambiar_login()">LOGIN</button>
+                        </div>
+                    </div>
+                    <div class="col_md_sign_up">
+                        <div class="cont_ba_opcitiy">
+                            <h2>SIGN UP</h2>
+                            <p>Lorem ipsum dolor sit amet, consectetur.</p>
+                            <button class="btn_sign_up" v-on:click="cambiar_sign_up()">SIGN UP</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="cont_back_info">
+                    <div class="cont_img_back_grey">
+                        <img src="~/Content/images/po.jpg" alt=""/>
+                    </div>
+                </div>
+                <div class="cont_forms">
+                    <div class="cont_img_back_">
+                        <img src="~/Content/images/img.png" alt=""/>
+                    </div>
+                    <div class="cont_form_login">
+                        <a href="#" v-on:click="ocultar_login_sign_up()">
+                            <i class="material-icons">&#xE5C4;</i>
+                        </a>
+                        <h2>LOGIN</h2>
+                        <input type="text" placeholder="请输入用户名或邮箱" v-model="login_form.email"/>
+                        <input type="password" placeholder="请输入密码" v-model="login_form.pass"/>
+                        <button class="btn_login" v-on:click="login()">LOGIN</button>
+                    </div>
+                    <div class="cont_form_sign_up">
+                        <a href="#" v-on:click="ocultar_login_sign_up()">
+                            <i class="material-icons">&#xE5C4;</i>
+                        </a>
+                        <h2>SIGN UP</h2>
+                        <input type="text" placeholder="请输入邮箱号" v-model="signup_form.email"/>
+                          <input type="text" placeholder="请输入用户名" v-model="signup_form.user"/>
+                          <input type="password" placeholder="请输入密码" v-model="signup_form.pass"/>
+                          <input type="password" placeholder="请确认密码" v-model="signup_form.confirm_pass"/>
+                        <button class="btn_sign_up" v-on:click="signup()">SIGN UP</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+const login = new Vue ({
+  el: '#login',
+  data() {
+    return {
+        login_form: {
+        email: "",
+        pass: ""
+      },
+      signup_form: {
+        email: "",
+        user: "",
+        pass: "",
+        confirm_pass: ""
+      }
+    }
+  },
+  methods: {
+      login() {
+            const that = this;
+            axios({
+              method: 'get',
+              url: '/Login/PLogin?email='+that.login_form.email+'&pass='+that.login_form.pass
+            })
+                .then(res => {
+                  console.log(res);
+                  if (res.data.code!==-1){
+                      if (res.data.code===0){
+                          //登录成功，保存用户数据
+                          localStorage.setItem("email",res.data.user.email);
+                          localStorage.setItem("name",res.data.user.name);
+                          localStorage.setItem("avatar",res.data.user.avatar);
+                      }
+                      if (document.referrer === '')
+                          window.location.href = "/Home/Index";
+                      else
+                          window.location.replace(document.referrer);
+                  }else{
+                      this.$message(res.data.msg);
+                  }
+                })
+                .catch(err => {
+                  console.log(err);
+                });
+          },
+          signup() {
+            //将表单信息传入后端
+            //后端将信息添加进入数据库
+            //包括用户邮箱，用户名，密码
+            //前端需要验证两次输入的密码是否一致
+            //不一致则直接返回给前端
+            if (this.signup_form.pass != this.signup_form.confirm_pass) {
+              this.$message("两次密码不一致");
+              return;
+            }
+            //校验正确
+            const that = this;
+            axios({
+              method: 'get',
+              url: '/Login/PSignup?email='+that.signup_form.email+"&user="+that.signup_form.user+"&pass="+that.signup_form.pass,
+            }).then(res => {
+              console.log(res);
+              if (res.data.code===1){
+                    that.$message("注册完成");
+                    that.cambiar_login();
+               }
+            }).catch(err => {
+              console.log(err);
+            });
+          },
+    cambiar_login() {
+      document.querySelector('.cont_forms').className = "cont_forms cont_forms_active_login";
+      document.querySelector('.cont_form_login').style.display = "block";
+      document.querySelector('.cont_form_sign_up').style.opacity = "0";
+
+      setTimeout(function () {
+        document.querySelector('.cont_form_login').style.opacity = "1";
+      }, 400);
+
+      setTimeout(function () {
+        document.querySelector('.cont_form_sign_up').style.display = "none";
+      }, 200);
+    },
+
+    cambiar_sign_up() {
+      document.querySelector('.cont_forms').className = "cont_forms cont_forms_active_sign_up";
+      document.querySelector('.cont_form_sign_up').style.display = "block";
+      document.querySelector('.cont_form_login').style.opacity = "0";
+
+      setTimeout(function () {
+        document.querySelector('.cont_form_sign_up').style.opacity = "1";
+      }, 100);
+
+      setTimeout(function () {
+        document.querySelector('.cont_form_login').style.display = "none";
+      }, 400);
+    },
+
+    ocultar_login_sign_up() {
+      document.querySelector('.cont_forms').className = "cont_forms";
+      document.querySelector('.cont_form_sign_up').style.opacity = "0";
+      document.querySelector('.cont_form_login').style.opacity = "0";
+      setTimeout(function () {
+        document.querySelector('.cont_form_sign_up').style.display = "none";
+        document.querySelector('.cont_form_login').style.display = "none";
+      }, 500);
+    }
+  }
+});
+</script>
+</body>
+</html>

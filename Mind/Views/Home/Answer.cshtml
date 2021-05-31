@@ -1,0 +1,339 @@
+﻿<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>书架</title>
+    <link rel="stylesheet" href="~/Content/ElementUI/element-ui.css">
+    <link rel="stylesheet" href="~/Content/answer.css">
+    <script src="~/Scripts/vue.min.js"></script>
+    <script src="~/Scripts/axios.min.js"></script>
+    <script src="~/Scripts/ElementUI/element-ui.js"></script>
+</head>
+<body>
+<div id="app">
+    @RenderPage("~/Views/Shared/header.cshtml")
+    <div id="main"></div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+<script>
+new Vue({
+  el: "#app",
+  data(){
+    return{
+      state:"",
+      hasLogin: false,
+      user:{
+        name:"guest",
+        avatar:"/Content/images/img.png"
+      },
+      books:[],
+      nodes:[],
+      links:[],
+      myChart: null,
+      option: {
+          title: {
+              text: 'Les Miserables',
+              subtext: 'Default layout',
+              top: 'bottom',
+              left: 'right'
+          },
+          tooltip: {
+              formatter: function (x) {
+                  return x.data.des;
+              }
+          },
+          animationDuration: 1500,
+          animationEasingUpdate: 'quinticInOut',
+          series: [
+              {
+                  type: 'graph',
+                  layout: 'force',
+                  symbolSize: 80,
+                  roam: true,
+                  edgeSymbol: ['circle', 'arrow'],
+                  edgeSymbolSize: [4, 10],
+                  edgeLabel: {
+                      normal: {
+                          show: true,
+                          formatter: function (x) {
+                              return x.data.name;
+                          }
+                      }
+                  },
+                  force: {
+                      repulsion: 3000,
+                      edgeLength: [10, 50]
+                  },
+                  draggable: true,
+                  itemStyle: {
+                      normal: {
+                          color: '#4b565b'
+                      }
+                  },
+                  lineStyle: {
+                      normal: {
+                          width: 2,
+                          color: '#4b565b'
+
+                      }
+                  },
+                  label: {
+                      normal: {
+                          show: true,
+                          textStyle: {}
+                      }
+                  },
+                  data: null,
+                  links: null
+              }
+          ]
+      },
+      timmerHandle:null,
+      isDrag:false,
+      isClick:false
+    }
+  },
+  methods:{
+    handleSearchSelect(item) {
+      this.go('detail',item);
+    },
+    querySearchAsync(queryString, cb) {
+      axios({
+            method: 'get',
+            url: '/Index/GetSearchBooks?query='+queryString+"&limit=10"
+          })
+              .then(res => {
+                console.log(res);
+                cb(res.data);
+              })
+              .catch(err => {
+                console.log(err);
+              });
+    },
+    go(name,book){
+      console.log(book);
+      localStorage.setItem("book",JSON.stringify(book))
+      window.location.href = "/Home/"+name;
+    },
+    initChart(){
+      function setDragTrue() {
+         that.isDrag = true;
+      }
+      const that = this;
+      const dom = document.getElementById("main");
+      that.myChart = echarts.init(dom,'dark');
+      that.option.series[0].data = that.nodes;
+      that.option.series[0].links = that.links;
+      
+      console.log(this.option)
+      that.myChart.setOption(this.option);
+      that.myChart.on("click", function (param){               
+          setTimeout(function(){
+              if(that.isClick && param.dataType == "node"){
+                  console.log(param)
+                  for (const book of that.books){
+                    if (book.name == param.data.name){
+                        that.go('detail',book);
+                        return;
+                    }
+                  }
+              }
+          },500);
+      });
+      that.myChart.on("mousedown", function (param){   
+          //因为mouseDownFun每次都会调用的，在这里重新初始化这个变量  
+          that.isDrag = false;  
+          //延迟100ms  
+          that.timmerHandle = setTimeout(setDragTrue,200);  
+      });
+      that.myChart.on("mouseup", function (param){   
+          if (!that.isDrag){
+              clearTimeout(that.timmerHandle);
+              that.isClick = true;
+          }else{  
+              that.isDrag = false;
+              that.isClick = false; 
+          }             
+      });
+    },
+    initGraph(){
+        const that = this;
+        const data = new Map();
+        for (const book of this.books){
+            if (data.get(book.author)===undefined){
+                data.set(book.author,"");
+              let obj= {
+                  name:book.author,
+                  des:"作者名:"+book.author,
+                  symbolSize: 100,
+                  symbol: "image://http://localhost:5000/Content/images/img.png"
+              };
+              that.nodes.push(obj);
+            }
+            if (data.get(book.name)===undefined){
+                data.set(book.name,"");
+                  let obj= {
+                     name:book.name,
+                     des:"类型:"+book.type+"<br/>简介:<p style='width:200px;white-space: normal;'>"+book.intro+"</p>",
+                     symbolSize: 100,//图片大小
+                     symbol: "image://http://localhost:5000"+book.url
+                 };
+                 that.nodes.push(obj);
+            }
+            let obj = {
+                source:book.author,
+                target:book.name,
+                name:"著作"
+            }
+            that.links.push(obj);
+        }
+        that.initChart();
+    },
+    // initGraph(){
+    //     const that = this;
+    //     that.initChart();
+    //     const data = new Map();
+    //     for (const book of this.books){
+    //         if (data.get(book.author)===undefined){
+    //             const func = function(data,book,image) {
+    //               data.set(book.author,"");
+    //               let obj= {
+    //                   name:book.author,
+    //                   des:"作者名:"+book.author,
+    //                   symbolSize: 100,
+    //                   symbol: "image://"+ image
+    //               };
+    //               that.nodes.push(obj);
+    //             }
+    //             that.circle_image("http://localhost:5000/Content/images/img.png",data, book,func)
+    //         }
+    //         if (data.get(book.name)===undefined){
+    //             const func = function(data,book,image) {
+    //               data.set(book.name,"");
+    //               let obj= {
+    //                  name:book.name,
+    //                  des:"类型:"+book.type+"<br/>简介:<p style='width:200px;white-space: normal;'>"+book.intro+"</p>",
+    //                  symbolSize: 100,//图片大小
+    //                  symbol: "image://"+ image
+    //              };
+    //              that.nodes.push(obj);
+    //             }
+    //             that.circle_image("http://localhost:5000"+book.url,data,book,func)
+    //         }
+    //         let obj = {
+    //             source:book.author,
+    //             target:book.name,
+    //             des:"著作"
+    //         }
+    //         for (const link of that.links) {
+    //           if (obj.source!==link.source &&obj.target !== link.target){
+    //               that.links.push(obj);
+    //           }
+    //         }
+    //     }
+    //     var count = 0;
+    //     var timer = setInterval(function() {
+    //       if (count>=3){
+    //           clearInterval(timer);
+    //       }else{
+    //           that.option.series[0].data = that.nodes;
+    //           that.option.series[0].links = that.links;
+    //           that.myChart.setOption(that.option);
+    //       }
+    //       count++;
+    //     },1000)
+    // },
+    // circle_image(url,data,book,func) {
+    //     const img = new Image();
+    //     img.onload = function() {
+    //         var type = 0;
+    //         var radius, diameter, canvas, ctx, natural;
+    //         if (type) {
+    //           if (img.naturalWidth > img.naturalHeight) {
+    //               radius = img.naturalHeight / 2;
+    //           } else {
+    //               radius = img.naturalWidth / 2;
+    //           }
+    //         } else {
+    //           if (img.width > img.height) {
+    //               radius = img.height / 2;
+    //           } else {
+    //               radius = img.width / 2;
+    //           }
+    //           if (img.naturalWidth > img.naturalHeight) {
+    //               natural = img.naturalHeight;
+    //           } else {
+    //               natural = img.naturalWidth;
+    //           }
+    //         }
+    //         diameter = radius * 2;
+    //         canvas = document.createElement('canvas');
+    //         if (!canvas.getContext) { // 判断浏览器是否支持canvas，如果不支持在此处做相应的提示
+    //           console.log('您的浏览器版本过低，暂不支持。');
+    //           return false;
+    //         }
+    //         canvas.width = diameter;
+    //         canvas.height = diameter;
+    //         contex = canvas.getContext("2d");
+    //         contex.clearRect(0, 0, diameter, diameter);
+    //         contex.save();
+    //         contex.beginPath();
+    //         contex.arc(radius, radius, radius, 0, Math.PI * 2, false);
+    //         contex.clip();
+    //         if (type) {
+    //           contex.drawImage(img, 0, 0, diameter, diameter, 0, 0, diameter, diameter);
+    //         } else {
+    //           contex.drawImage(img, 0, 0, natural, natural, 0, 0, diameter, diameter);
+    //         }
+    //         contex.restore();
+    //         func(data, book,canvas.toDataURL('image/png'));
+    //     }
+    //     img.src = url;
+    // },
+    // unique(arr) {
+    //     if (!Array.isArray(arr)) {
+    //         console.log('type error!')
+    //         return;
+    //     }
+    //     arr = arr.sort()
+    //     var arrry= [arr[0]];
+    //     for (var i = 1; i < arr.length; i++) {
+    //         if (arr[i] !== arr[i-1]) {
+    //             arrry.push(arr[i]);
+    //         }
+    //     }
+    //     return arrry;
+    // }
+  },
+  mounted() {
+    //检查是否登录
+    const email = localStorage.getItem("email");
+    if (email!=undefined&&email!=""&&'@Session["email"]'!=''){
+        this.hasLogin = true;
+        this.user.name = localStorage.getItem("name");
+    }else{
+      this.hasLogin = false;
+    }
+    
+    const arr = window.location.href.split(/\?|\=/);
+    const query = arr.pop();
+    const that = this;
+    //获取书籍
+    axios({
+          method: 'get',
+          url: '/Index/GetSearchBooks?query='+query
+        })
+            .then(res => {
+              console.log(res);
+              that.books = res.data;
+              that.initGraph();
+            })
+            .catch(err => {
+              console.log(err);
+            });
+  }
+})
+</script>
+</body>
+</html>

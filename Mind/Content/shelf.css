@@ -1,0 +1,49 @@
+﻿@import "Site.css";
+.grid-content {
+    border-radius: 4px;
+    min-height: 36px;
+    display: flex;
+    flex-direction: row;
+}
+
+.grid-content .el-image {
+    width: 100px;
+    height: 100px;
+}
+
+.grid-content .grid-item-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    width: 100%;
+    margin-left: 20px;
+}
+
+.grid-bottom-bar {
+    width: 94%;
+    height: 40px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 0 3%;
+    align-items: center;
+    margin-top: 10px;
+    color: rgba(0, 150, 136, 1);
+    background: rgba(255, 163, 70, 1);
+    border-radius: 2px;
+}
+.grid-bottom-bar .el-button{
+    color: white;
+}
+
+.grid-item-info span {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.grid-item-info div{
+    height: 60px;
+    overflow: hidden;
+    color: #e86e25;
+}

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <meta charset="UTF-8">
+  <title>没有找到您所访问的页面 | 紫幽阁</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <link rel="alternate icon" type="image/png" href="/i/favicon.png">
+  <link rel="stylesheet" href="/css/amazeui.min.css"/>
+  <style>
+    .header {
+      text-align: center;
+    }
+    .header h1 {
+      font-size: 200%;
+      color: #333;
+      margin-top: 30px;
+    }
+    .header p {
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+<div class="header">
+<hr>
+  <div class="am-g">
+    <h1>没有找到您所访问的页面</h1>
+    <p>紫幽阁</p>
+  </div>
+  <hr />
+</div>
+<div class="am-g">
+  <div class="am-u-lg-6 am-u-md-8 am-u-sm-centered">
+    <h3><a href="/" class="am-icon-home">返回首页</a></h3>
+
+    <hr>
+		<i class="am-icon-times-circle am-text-danger"></i>
+		<b>没有找到您所访问的页面</b><br />页面自动 <a id="href" href="/">跳转</a> 等待时间： <b id="wait">3</b>
+    <hr>
+	
+    <p>没有找到您所访问的页面,他可能已经迁移到其他位置!,3秒后将自动返回上一页!</p>
+	 <hr>
+		 
+		 
+		 
+		
+		<a class="am-badge am-radius" href="/list/1">玄幻奇幻</a>
+		
+		 
+		
+		<a class="am-badge am-radius" href="/list/2">武侠仙侠</a>
+		
+		 
+		
+		<a class="am-badge am-radius" href="/list/3">都市言情</a>
+		
+		 
+		
+		<a class="am-badge am-radius" href="/list/4">古代言情</a>
+		
+		 
+		
+		<a class="am-badge am-radius" href="/list/5">军事历史</a>
+		
+		 
+		
+		<a class="am-badge am-radius" href="/list/6">网游竞技</a>
+		
+		 
+		
+		<a class="am-badge am-radius" href="/list/7">灵异恐怖</a>
+		
+		 
+		
+		<a class="am-badge am-radius" href="/list/8">耽美同人</a>
+		
+		 
+		
+		<a class="am-badge am-radius" href="/list/9">穿越架空</a>
+		
+		 
+		
+		<a class="am-badge am-radius" href="/list/10">其他书籍</a>
+		
+		
+  </div>
+
+</div>
+
+
+
+<script type="text/javascript">
+(function(){
+var wait = document.getElementById('wait'),href = document.getElementById('href').href;
+var interval = setInterval(function(){
+	var time = --wait.innerHTML;
+	if(time <= 0) {
+		history.go(-1);
+		clearInterval(interval);
+	};
+}, 1000);
+})();
+</script>
+</body>
+</html>

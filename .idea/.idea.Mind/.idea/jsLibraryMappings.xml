@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="JavaScriptLibraryMappings">
+    <file url="PROJECT" libraries="{danMu.beta, echarts, echarts-gl, http-vue-loader, index, jquery-1.11.3, require.js, vue, vue-baberrage}" />
+    <includedPredefinedLibrary name="Node.js Core" />
+  </component>
+</project>

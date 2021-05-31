@@ -1,0 +1,188 @@
+﻿@import "Site.css";
+@font-face {
+    font-family: sourcehansans; /* 这个名字可以自己定义 */
+    src: /* Modern Browsers */ url("../fonts/SourceHanSerifSC-Medium.otf") format("truetype");
+    font-weight: bold;
+    font-style: normal;
+}
+.mind{
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+}
+.el-select{
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 10;
+}
+#jsmind_container{
+    width: 100%;
+}
+
+.read {
+    /*background: #393737;*/
+    background: var(--themeBodyBackground);
+    height: 100%;
+    overflow-y: scroll;
+}
+
+.read-content {
+    font-family: sourcehansans, serif;
+    font-weight: 200;
+    width: 50%;
+    margin: 0 auto;
+    user-select: text;
+    padding: 10px 20px;
+    box-shadow: 0 0 5px grey;
+    background: var(--themeContentBackground);
+    color: var(--themeColor);
+}
+
+.selected_text {
+    text-decoration: underline;
+    text-decoration-color: #4e9aff;
+    text-decoration-style: dashed;
+    text-underline-position: under;
+    cursor: pointer;
+    user-select: none;
+}
+
+.mutil-line-container {
+    padding: 10px;
+    background: #595858;
+    color: #d5d5d5;
+    margin: 0 10px;
+    border-radius: 10px;
+}
+
+.mutil-line-ellipsis {
+    height: 80px !important;
+    line-height: 20px;
+    overflow: hidden;
+}
+
+.mutil-line-ellipsis:before {
+    content: '';
+    float: left;
+    width: 5px; /*缩小宽度为5px，其余属性不变*/
+    height: 80px;
+}
+
+.mutil-line-ellipsis > :first-child {
+    float: right;
+    width: 100%;
+    margin-left: -5px; /*让main元素左移5px，这样main元素在宽度上就完全占满了父元素；*/
+    word-break: break-all;
+
+    padding-right: 10px;
+    box-sizing: border-box;
+    text-align: justify;
+
+}
+
+.mutil-line-ellipsis:after {
+    content: '......';
+    box-sizing: content-box;
+    float: right;
+    position: relative;
+    width: 11px;
+    height: 20px;
+    top: -20px; /*等于高度的负值，就是文字的行高*/
+    left: 100%;
+    /*设置margin-left。padding-right。则是为了让realend元素的盒模型的最终宽度计算为5px。*/
+    margin-left: -11px;
+    padding-right: 5px;
+    font-size: 13px;
+    text-align: left;
+    /*background:#fff;!* W3C *!*/
+}
+
+.danmustage {
+    width: 100%;
+    height: 300px;
+    position: fixed;
+}
+.danmu span{
+    font-size: 20px;
+}
+.danmu-card{
+    width: 100%;
+    height: 100%;
+}
+.danmu-card-body {
+    display: flex;
+    align-items: center;
+    height: 50px;
+    padding: 5px;
+    background: #ffffff38;
+    border-radius: 35px;
+    color: #ff9411;
+}
+
+.danmu-card-body .el-image {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+}
+
+.danmu-card-body span {
+    margin-left: 10px;
+    max-width: 400px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.btn{
+    width: 50px;
+    height: 50px;
+    position: fixed;
+    left: 20px;
+    z-index: 1;
+    background: var(--themeBtnBackground);
+    color: var(--themeBtnColor);
+}
+.theme-control-btn{
+    top: 80px;
+}
+.danmu-control-btn{
+    top: 140px;
+}
+.comment-control-btn{
+    top: 200px;
+}
+
+.mind-control-btn{
+    top: 260px;
+}
+.category-control-btn{
+    top: 320px;
+}
+.sections{
+    padding-bottom: 20px;
+    height: 800px;
+    width: 100%;
+    overflow: scroll;
+    overflow-x: hidden;
+}
+
+.section-item{
+    display: flex;
+    border-bottom: 1px solid lightgray;
+    padding: 15px;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.last-section-btn{
+    position: fixed;
+    top: 400px;
+    left: 15%;
+}
+.next-section-btn{
+    position: fixed;
+    top: 400px;
+    left: 78%;
+}

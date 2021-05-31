@@ -1,0 +1,13 @@
+{
+  "name": "Mind",
+  "version": "1.0.0",
+  "dependencies": {
+    "element-ui": "^2.15.1",
+    "vue": "^2.6.12",
+    "vue-baberrage": "^3.2.4",
+    "vue-jsmind": "^1.5.0"
+  },
+  "devDependencies": {
+    "vue-router": "^3.5.1"
+  }
+}

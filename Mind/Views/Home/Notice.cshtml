@@ -1,0 +1,185 @@
+﻿<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>书架</title>
+    <link rel="stylesheet" href="~/Content/ElementUI/element-ui.css">
+    <link rel="stylesheet" href="~/Content/notice.css">
+    <script src="~/Scripts/vue.min.js"></script>
+    <script src="~/Scripts/axios.min.js"></script>
+    <script src="~/Scripts/ElementUI/element-ui.js"></script>
+</head>
+<body>
+<div id="app">
+  @RenderPage("~/Views/Shared/header.cshtml")
+  <div class="notice">
+    <div class="notice-left">
+      <div style="display: flex">
+        <el-select v-on:change="handleSelect" v-model="select">
+          <el-option label="显示全部公告" value="0"></el-option>
+          <el-option label="显示个人公告" value="1"></el-option>
+        </el-select>
+        <el-input v-model="filter" placeholder="过滤" v-on:input="handleChange"></el-input>
+      </div>
+      <div id="scrollUpBox">
+        <ul id="content">
+          <div v-for="notice in notices" :key="notice.Id">
+            <el-popover
+              placement="right"
+              width="500"
+              trigger="hover">
+              <div style="background: rgb(129 119 119);padding: 20px;color: white;border-radius: 5px">
+                <span>{{notice.NTitle}}</span>
+                <p>{{notice.NContent}}</p>
+              </div>
+              <li slot="reference">{{notice.NTitle}}</li>
+            </el-popover>
+          </div>
+          <div v-for="notice in notices" :key="notice.Id">
+            <el-popover
+              placement="right"
+              width="500"
+              trigger="hover">
+              <div style="background: rgb(129 119 119);padding: 20px;color: white;border-radius: 5px">
+                <span>{{notice.NTitle}}</span>
+                <p>{{notice.NContent}}</p>
+              </div>
+              <li slot="reference">{{notice.NTitle}}</li>
+            </el-popover>
+          </div>
+        </ul>
+      </div>
+    </div>
+    <div class="notice-right">
+      <el-form ref="form" :model="form" label-width="80px">
+        <el-form-item>
+          <el-input v-model="form.title" placeholder="书名或其它关键信息">
+            <template slot="prepend">标题</template>
+          </el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-input
+            type="textarea"
+            :rows = "20"
+            style="height: 425px"
+            v-model="form.content" placeholder="详细描述，写得好得到反馈的机会会更大哦!!">
+          </el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" v-on:click="onSubmit" style="width: 100%">发布</el-button>
+        </el-form-item>
+      </el-form>
+    </div>
+  </div>
+</div>
+<script>
+new Vue({
+  el: "#app",
+  data(){
+    return{
+      state:"",
+      hasLogin: false,
+      user:{
+        name:"guest",
+        avatar:"/Content/images/img.png"
+      },
+      books:[],
+      form:{
+        title:"",
+        content:"" 
+      },
+      notices:[],
+      filter:"",
+      select:null
+    }
+  },
+  methods:{
+    getNotices(url){
+      const that = this;
+      axios({
+          method: 'get',
+          url: url
+        })
+            .then(res => {
+              console.log(res);
+              that.notices = res.data;
+            })
+            .catch(err => {
+              console.log(err);
+            });
+    },
+    handleSelect(){
+      this.getNotices('/Notice/GetNotices?filter='+(this.select===1?localStorage.getItem("email"):""));
+    },
+    handleChange(){
+      this.getNotices('/Notice/GetNotices?filter='+this.filter);
+    },
+    handleSearchSelect(item) {
+      this.go('detail',item);
+    },
+    querySearchAsync(queryString, cb) {
+      axios({
+            method: 'get',
+            url: '/Index/GetSearchBooks?query='+queryString+"&limit=10"
+          })
+              .then(res => {
+                console.log(res);
+                cb(res.data);
+              })
+              .catch(err => {
+                console.log(err);
+              });
+    },
+    go(name){
+      window.open("/Home/"+name);
+    },
+    onSubmit(){
+      axios({
+          method: 'get',
+          url: '/Notice/AddNotice?email='+localStorage.getItem("email")+"&title="+this.form.title+"&content="+this.form.content
+        })
+            .then(res => {
+              console.log(res);
+              cb(res.data);
+            })
+            .catch(err => {
+              console.log(err);
+            });
+    }
+  },
+  created() {
+    const that = this;
+    //检查是否登录
+    const email = localStorage.getItem("email");
+    if (email!=undefined&&email!=""&&'@Session["email"]'!=''){
+        this.hasLogin = true;
+        this.user.name = localStorage.getItem("name");
+    }else{
+      this.hasLogin = false;
+    }
+    this.getNotices('/Notice/GetNotices')
+  },
+  mounted() {
+    var scrollUpBox = document.getElementById('scrollUpBox');
+    var content = document.getElementById('content');
+    function scrollUp() {
+        if (scrollUpBox.scrollTop >= (content.clientHeight - scrollUpBox.clientHeight)) {
+            scrollUpBox.scrollTop = 0;
+        } else {
+            scrollUpBox.scrollTop++;
+        }
+    }                
+    var TIME = 50;
+    var timer = setInterval(scrollUp, TIME);
+    scrollUpBox.onmouseover = function() {
+        clearInterval(timer);
+    }
+    scrollUpBox.onmouseout = function() {
+        timer = setInterval(scrollUp, TIME);
+    }
+  }
+})
+</script>
+</body>
+</html>

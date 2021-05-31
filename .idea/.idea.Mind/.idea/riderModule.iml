@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="RIDER_MODULE" version="4">
+  <component name="NewModuleRootManager">
+    <content url="file://$MODULE_DIR$/../.." />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="index" level="application" />
+    <orderEntry type="library" name="vue" level="application" />
+    <orderEntry type="library" name="http-vue-loader" level="application" />
+    <orderEntry type="library" name="vue-baberrage" level="application" />
+    <orderEntry type="library" name="require.js" level="application" />
+    <orderEntry type="library" name="danMu.beta" level="application" />
+    <orderEntry type="library" name="jquery-1.11.3" level="application" />
+    <orderEntry type="library" name="echarts-gl" level="application" />
+    <orderEntry type="library" name="echarts" level="application" />
+  </component>
+</module>

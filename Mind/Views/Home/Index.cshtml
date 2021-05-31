@@ -1,0 +1,143 @@
+﻿@model Mind.Models.Book
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>首页</title>
+    <link rel="stylesheet" href="~/Content/ElementUI/element-ui.css">
+    <link rel="stylesheet" href="~/Content/index/index.css">
+    <script src="~/Scripts/vue.min.js"></script>
+    <script src="~/Scripts/axios.min.js"></script>
+    <script src="~/Scripts/ElementUI/element-ui.js"></script>
+</head>
+<body>
+<div id="app">
+  @RenderPage("~/Views/Shared/header.cshtml")
+  @* <p class="microsoft marquee">{{notices}}</p> *@
+  <div class="shadow">
+    <el-carousel :interval="4000" type="card" height="200px">
+      <el-carousel-item v-for="book in carousel_books" :key="book.url">
+        <div class="carousel-item-content">
+          <img :src="book.url" alt="" class="book-item-cover"/>
+          <div class="book-item-info">
+            <span>书名:{{ book.name }}</span>
+            <span>作者:{{ book.author }}</span>
+          </div>
+        </div>
+      </el-carousel-item>
+    </el-carousel>
+  </div>
+  <div v-for="item in books" :key="item.type" style="width: 100%">
+    <el-divider></el-divider>
+    <div class="sort-title">{{item.type}}</div>
+    <el-divider></el-divider>
+    <el-row style="width: 100%;margin: 0" :gutter="60">
+      <el-col v-for="book_item in item.values" :key="book_item.url" :span="8">
+        <el-card style="margin-bottom: 20px">
+          <div class="grid-content">
+            <el-image :src="book_item.url"></el-image>
+            <div class="grid-item-info">
+              <span>{{book_item.author}}</span>
+              <span>{{book_item.name}}</span>
+              <div>{{book_item.intro.trim()}}</div>
+            </div>
+          </div>
+          <div class="grid-bottom-bar">
+            <el-button type="text" v-on:click="go('detail',book_item)">详情</el-button>
+            <el-button type="text" v-on:click="go('read',book_item)">阅读</el-button>
+          </div>
+        </el-card>
+      </el-col>
+    </el-row>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/http-vue-loader@1.4.2/src/httpVueLoader.min.js"></script>
+<script>
+new Vue ({
+  el: '#app',
+  data() {
+    return {
+      hasLogin: false,
+      books: [],
+      carousel_books:[],
+      state:"",
+      restaurants:[],
+      user:{
+        name:"guest",
+        avatar:"/Content/images/img.png"
+      },
+      // notices:""
+    };
+  },
+  methods: {
+    handleSearchSelect(item) {
+      this.go('detail',item);
+    },
+    querySearchAsync(queryString, cb) {
+      axios({
+            method: 'get',
+            url: '/Index/GetSearchBooks?query='+queryString+"&limit=10"
+          })
+              .then(res => {
+                console.log(res);
+                cb(res.data);
+              })
+              .catch(err => {
+                console.log(err);
+              });
+    },
+    go(name,book){
+      console.log(book);
+      localStorage.setItem("book",JSON.stringify(book))
+      // localStorage.setItem("section",JSON.stringify(book.section))
+      window.location.href = "/Home/"+name;
+    },
+    // getNotices(url){
+    //   const that = this;
+    //   axios({
+    //       method: 'get',
+    //       url: url
+    //     })
+    //         .then(res => {
+    //           console.log(res);
+    //           for (const notice of res.data){
+    //             that.notices += notice.NTitle+"   ";
+    //           }
+    //         })
+    //         .catch(err => {
+    //           console.log(err);
+    //         });
+    // }
+  },
+  mounted(){
+    const that = this;
+    axios({
+      method: 'get',
+      url: '/Index/GetSortedBooks'
+    })
+        .then(res => {
+          console.log(res);
+          that.books = res.data;
+          that.carousel_books = that.books[0].values;
+        })
+        .catch(err => {
+          console.log(err);
+        });
+  },
+  created() {
+    //检查是否登录
+    const email = localStorage.getItem("email");
+    console.log("@Session["email"]");
+    if (email!=undefined&&email!=""&&'@Session["email"]'!=''){
+        this.hasLogin = true;
+        this.user.name = localStorage.getItem("name");
+    }else{
+      this.hasLogin = false;
+    }
+    // this.getNotices('/Notice/GetNotices')
+  }
+})
+</script>
+</body>
+</html>

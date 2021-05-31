@@ -1,0 +1,43 @@
+﻿<div class="header">
+    <div class="header-logo">
+        <el-image src="/Content/images/img1.png" alt=""></el-image>
+        <span class="header-title">弹幕阅读网</span>
+    </div>
+    <el-menu
+        style="display:flex;flex:1;"
+        default-active="1"
+        class="el-menu-demo"
+        mode="horizontal">
+        <el-menu-item index="1">书城</el-menu-item>
+        <el-menu-item style="flex: 1">
+            <el-autocomplete class="search-bar"
+                             v-model="state"
+                             :fetch-suggestions="querySearchAsync"
+                             placeholder="请输入内容"
+                             v-on:select="handleSearchSelect">
+                <el-button slot="append" icon="el-icon-search" v-on:click="go('answer?query='+state)"></el-button>
+            </el-autocomplete>
+        </el-menu-item>
+        <el-menu-item style="flex: 1;display: flex;justify-content: flex-end;">
+            <div class="user-info" v-if="hasLogin" v-popover:popover1>
+                <img :src="user.avatar" alt="" width="50" class="user-avator">
+                <span class="user-name">{{user.name}}</span>
+            </div>
+            <div class="user-info log_reg" v-else>
+                <el-button type="text" v-on:click="go('login')" class="log_link">登录</el-button>
+                <el-button type="text" v-on:click="go('login')" class="reg_link">注册</el-button>
+            </div>
+        </el-menu-item>
+    </el-menu>
+    <el-popover
+        ref="popover1"
+        placement="bottom"
+        width="100"
+        trigger="hover">
+        <el-button type="text" v-on:click="go('shelf')">上传头像</el-button>
+        <br/>
+        <el-button type="text" v-on:click="go('shelf')">书架</el-button>
+        <br/>
+        <el-button type="text" v-on:click="go('notice')">公告</el-button>
+    </el-popover>
+</div>

@@ -1,0 +1,238 @@
+﻿<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>详情</title>
+    <link rel="stylesheet" href="~/Content/ElementUI/element-ui.css">
+    <link rel="stylesheet" href="~/Content/detail.css">
+    <script src="~/Scripts/vue.min.js"></script>
+    <script src="~/Scripts/axios.min.js"></script>
+    <script src="~/Scripts/ElementUI/element-ui.js"></script>
+</head>
+<body>
+<div id="app">
+    @RenderPage("~/Views/Shared/header.cshtml")
+    <div class="detail">
+        <div class="detail-nav">
+            <el-breadcrumb separator-class="el-icon-arrow-right">
+                <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+                <el-breadcrumb-item>{{book.type}}</el-breadcrumb-item>
+                <el-breadcrumb-item>{{book.name}}</el-breadcrumb-item>
+            </el-breadcrumb>
+        </div>
+        <div class="book-block">
+            <el-image class="book-cover" :src="book.url"></el-image>
+            <div class="book-info">
+                <span class="book-info-name">{{book.name}}</span>
+                <div class="book-info-type">
+                    <el-tag>{{book.type}}</el-tag>
+                </div>
+                <div class="boot-btn">
+                    <el-button v-on:click="go('read',book.section)" type="primary">点击阅读</el-button>
+                    <el-button v-on:click="add_shelf" type="warning">加入书架</el-button>
+                    <el-button v-on:click="category_drawer.visibility=true" type="success">查看目录</el-button>
+                </div>
+            </div>
+        </div>
+        <div>
+            <el-divider></el-divider>
+            <strong>简介</strong>
+            <el-divider></el-divider>
+            <p class="book-info-intro">{{book.intro}}</p>
+        </div>
+
+
+        <el-drawer
+            :with-header="false"
+            size="50%"
+            :modal="false"
+            :visible.sync="category_drawer.visibility"
+            :direction="category_drawer.direction"
+            :before-close="handleClose">
+            <div class="sections">
+                <div v-for="section in book.sections" :key="section.id" class="section-item">
+                    <span>{{section.title}}</span>
+                    <el-button v-on:click="go('read',section)">点击阅读</el-button>
+                </div>
+            </div>
+        </el-drawer>
+        <el-divider></el-divider>
+            <strong>评论</strong>
+        <el-divider></el-divider>
+        <div class="comment">
+            <div style="margin:10px;display: flex;">
+                <el-input
+                    style="margin-right: 20px"
+                    type="textarea"
+                    placeholder="请输入内容"
+                    v-model="comment_drawer.content">
+                </el-input>
+                <el-button type="primary" v-on:click="send_comment">发布</el-button>
+            </div>
+            <div class="comment-box" v-for="comment in commentList" :key="comment.id">
+                <el-image :src="comment.user_avatar"></el-image>
+                <div class="comment-right">
+                    <span>{{comment.user_name}}</span>
+                    <span class="comment-content">{{comment.content}}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+new Vue ({
+  el: '#app',
+  data() {
+    return {
+      hasLogin: false,
+      user:{
+        name:"guest",
+        avatar:"/Content/images/img.png"
+      },
+      state:"",
+      category_drawer:{
+        visibility:false,
+        direction:"rtl"
+      },
+      commentList:[],
+      comment_drawer:{
+          visibility: false,
+          direction: 'ltr',
+          content:""
+      },
+      book:{}
+    };
+  },
+  methods: {
+    handleSearchSelect(item) {
+      this.gobook('detail',item);
+    },
+    querySearchAsync(queryString, cb) {
+      axios({
+            method: 'get',
+            url: '/Index/GetSearchBooks?query='+queryString
+          })
+              .then(res => {
+                console.log(res);
+                cb(res.data);
+              })
+              .catch(err => {
+                console.log(err);
+              });
+    },
+    gobook(name,book){
+      console.log(book);
+      localStorage.setItem("book",JSON.stringify(book))
+      // localStorage.setItem("section",JSON.stringify(book.section))
+      window.location.href = "/Home/"+name;
+    },
+    go(name,section){
+      localStorage.setItem("section",JSON.stringify(section));
+      window.location.href = "/Home/"+name;
+    },
+    add_shelf(){
+      const that = this;
+      if (localStorage.getItem("email")==""||'@Session["email"]'==''){
+          this.$confirm('未登录?', '是否前往登录', {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              type: 'warning'
+          }).then(() => {
+              window.location.href = "/Home/Login"
+          }).catch(() => {
+          });
+          return;
+      }
+      axios({
+          method: 'get',
+          url: "/Shelf/AddToShelf?bid="+that.book.id+"&email="+localStorage.getItem("email")+"&sid="+that.book.sections[0].id
+        })
+            .then(res => {
+              console.log(res.data);
+              that.$message(res.data.msg);
+            })
+            .catch(err => {
+              console.log(err);
+            });
+    },
+    send_comment(){
+        //验证是否登录
+        if (localStorage.getItem("email")==""||'@Session["email"]'==''){
+            this.$confirm('是否前往登录', '未登录?', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                window.location.href = "/Home/Login"
+            }).catch(() => {
+            });
+            return;
+        }
+        //在数据库中插入弹幕信息
+        const that = this;
+        axios({
+            method: 'get',
+            url: "/Read/AddComment?data="+JSON.stringify({
+                content:this.comment_drawer.content,
+                email:localStorage.getItem("email"),
+                bid:that.book.id
+            })
+        })
+            .then(res => {
+                console.log(res.data);
+                that.get_comment();
+            })
+            .catch(err => {
+                console.log(err);
+            });
+    },
+    get_comment(){
+        const that = this;
+        axios({
+            method: 'get',
+            url: "/Read/GetComment?bid="+this.book.id
+        })
+            .then(res => {
+                console.log(res.data);
+                that.commentList = res.data;
+            })
+            .catch(err => {
+                console.log(err);
+            });
+    },
+    handleClose(done){
+      done();
+    }
+  },
+  mounted() {
+    //检查是否登录
+    const email = localStorage.getItem("email");
+    if (email!=undefined&&email!=""&&'@Session["email"]'!=''){
+        this.hasLogin = true;
+        this.user.name = localStorage.getItem("name");
+    }else{
+      this.hasLogin = false;
+    }
+    
+    const book = JSON.parse(localStorage.getItem("book"));
+    console.log(book)
+    const that = this;
+    axios({
+        method: 'get',
+        url: "/Detail/GetBook?b_id="+book.id
+      })
+          .then(res => {
+            that.book = res.data;
+            console.log(res.data);
+            that.get_comment();
+          })
+          .catch(err => {
+            console.log(err);
+          });
+  }
+})
+</script>
+</body>
+</html>

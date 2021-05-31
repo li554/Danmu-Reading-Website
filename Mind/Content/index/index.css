@@ -1,0 +1,160 @@
+﻿@import "../Site.css";
+
+.el-carousel {
+    width: 100%;
+    margin: 0 auto;
+}
+.el-carousel__item.is-active{
+    box-shadow: 0 0 5px lightgray;
+}
+
+.carousel-item-content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    background: white;
+    align-items: center;
+}
+.carousel-item-content .book-item-cover {
+    width: 30%;
+    height: 92%;
+    padding: 4%;
+}
+
+.carousel-item-content .book-item-info {
+    width: 70%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    padding-left: 20%;
+    font-size: 1.4em;
+    font-family: 宋体, serif;
+    margin-right: 5%;
+}
+
+.shadow {
+    width: 100%;
+    height: 230px;
+    background: #fffcf3;
+    /*background: url("../assets/img_1.png") no-repeat;*/
+    background-size: cover;
+    padding: 20px 0;
+}
+
+.el-col {
+    border-radius: 4px;
+}
+
+.grid-content {
+    border-radius: 4px;
+    min-height: 36px;
+    display: flex;
+    flex-direction: row;
+}
+
+.grid-content .el-image {
+    width: 100px;
+    height: 100px;
+}
+
+.grid-content .grid-item-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    width: 100%;
+    margin-left: 20px;
+}
+
+.grid-bottom-bar {
+    width: 94%;
+    height: 40px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 0 3%;
+    align-items: center;
+    margin-top: 10px;
+    color: rgba(0, 150, 136, 1);
+    background: rgba(255, 163, 70, 1);
+    border-radius: 2px;
+}
+.grid-bottom-bar .el-button{
+    color: white;
+}
+.sort-title {
+    font-family: 宋体;
+    font-size: 1.4em;
+}
+.grid-item-info span {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.grid-item-info div{
+    height: 60px;
+    overflow: hidden;
+    color: #e86e25;
+}
+
+.marquee {
+    width: 1170px;
+    margin: 0 auto;
+    overflow: hidden;
+    white-space: nowrap;
+    box-sizing: border-box;
+    animation: marquee 50s linear infinite;
+}
+
+.marquee:hover {
+    animation-play-state: paused
+}
+/* Make it move */
+
+@keyframes marquee {
+    0% {
+        text-indent: 27.5em
+    }
+    100% {
+        text-indent: -105em
+    }
+}
+/* Make it pretty */
+
+.microsoft {
+    padding-left: 1.5em;
+    position: relative;
+    font: 16px 'Segoe UI', Tahoma, Helvetica, Sans-Serif;
+    color: rgb(102, 102, 102);
+    background: rgb(255, 248, 233) none repeat scroll 0% 0%;
+}
+/* ::before was :before before ::before was ::before - kthx */
+
+.microsoft:before,
+.microsoft::before {
+    z-index: 2;
+    content: '';
+    position: absolute;
+    top: -1em;
+    left: -1em;
+    width: .5em;
+    height: .5em;
+    /*box-shadow: 1.0em 1.25em 0 #F65314, 1.6em 1.25em 0 #7CBB00, 1.0em 1.85em 0 #00A1F1, 1.6em 1.85em 0 #FFBB00;*/
+    /*background: url(img/horn.png);*/
+
+}
+
+.microsoft:after,
+.microsoft::after {
+    z-index: 1;
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1.4em;
+    height: 1.4em;
+    /*background: #FFF8E9;*/
+    background: #FFF8E9 url(/Content/images/horn.png)no-repeat center;
+    background-size:18px 18px ;
+}
