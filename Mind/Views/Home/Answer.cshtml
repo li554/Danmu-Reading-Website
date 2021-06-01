@@ -314,6 +314,8 @@ new Vue({
         this.user.name = localStorage.getItem("name");
     }else{
       this.hasLogin = false;
+      window.location.href = "/Home/login";
+      return;
     }
     
     const arr = window.location.href.split(/\?|\=/);

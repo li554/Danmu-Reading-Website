@@ -14,6 +14,7 @@ namespace Mind.Controllers
         {
             var email = Request["email"];
             var pass = Request["pass"];
+            //判断是否是管理员
             var data = new JObject();
             //判断session是否已经登录
             if (Session[email]!=null)
@@ -36,7 +37,7 @@ namespace Mind.Controllers
                     var checkPass = obj["pass"].ToString();
                     if (pass == checkPass)
                     {
-                        data.Add("code",0);
+                        data.Add("code",((bool) obj["isManager"])?2:0);
                         data.Add("msg","登录成功");
                         data.Add("user",obj);
                         Session["email"] = obj["email"];

@@ -78,7 +78,7 @@ namespace Mind.Models
                     sql = $"select * from book_schema.t_shelf where b_id={bid}";
                     var bookInShelf = _database.Fetch(sql);
                     data.Add("section",
-                        !bookInShelf.Read() ? (sections.Count>0?sections[0]:"") : new Section().GetSection(bid, (int) bookInShelf["s_id"]));
+                        !bookInShelf.Read() ? (sections.Count>0?sections[0]:null) : JObject.Parse(new Section().GetSection(bid, (int) bookInShelf["s_id"])));
                 }
                 _database.Close();
                 return data.ToString();
@@ -120,6 +120,29 @@ namespace Mind.Models
                 Console.WriteLine(e);
                 _database.Close();
                 return "[]";
+            }
+        }
+
+        public int AddBook(string name, string author, string intro,string type,string cover)
+        {
+            try
+            {
+                _database.Open();
+                var sql =
+                    $"insert into book_schema.t_book(b_name, b_author, b_cover, b_type, b_intro) values ('{name}','{author}','{cover}','{type}','{intro}')";
+                var code = _database.Update(sql);
+                sql = "select top 1 * from book_schema.t_book order by id desc";
+                var data = _database.Fetch(sql);
+                code = data.Read()?(int) data["id"]:code;
+                data.Close();
+                _database.Close();
+                return code;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                _database.Close();
+                return -1;
             }
         }
     }

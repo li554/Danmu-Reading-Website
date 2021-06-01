@@ -13,8 +13,20 @@ namespace Mind.Controllers
             var model = new Shelf();
             return Content(model.GetShelfBooks(email));
         }
+
+        public ActionResult DeleteShelfBooks()
+        {
+            var email = Request["email"];
+            var bids = Request["bids"];
+            var model = new Shelf();
+            var code = model.DeleteBooks(email, bids);
+            var obj = new JObject();
+            obj.Add("code",code);
+            obj.Add("msg",code==-1?"删除失败":$"删除了{code}条数据");
+            return Content(obj.ToString());
+        }
         
-        public bool VerifyLogin(String email)
+        public bool VerifyLogin(string email)
         {
             return Session[email] != null;
         }

@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="~/Content/detail.css">
     <script src="~/Scripts/vue.min.js"></script>
     <script src="~/Scripts/axios.min.js"></script>
-    <script src="~/Scripts/ElementUI/element-ui.js"></script>
 </head>
 <body>
 <div id="app">
@@ -41,8 +40,8 @@
             <el-divider></el-divider>
             <p class="book-info-intro">{{book.intro}}</p>
         </div>
-
-
+  
+  
         <el-drawer
             :with-header="false"
             size="50%"
@@ -58,7 +57,7 @@
             </div>
         </el-drawer>
         <el-divider></el-divider>
-            <strong>评论</strong>
+        <strong>评论</strong>
         <el-divider></el-divider>
         <div class="comment">
             <div style="margin:10px;display: flex;">
@@ -80,13 +79,13 @@
         </div>
     </div>
 </div>
+<script src="~/Scripts/ElementUI/element-ui.js"></script>
 <script>
-
-new Vue ({
+const app = new Vue ({
   el: '#app',
   data() {
     return {
-      hasLogin: false,
+      hasLogin: true,
       user:{
         name:"guest",
         avatar:"/Content/images/img.png"
@@ -129,12 +128,17 @@ new Vue ({
       window.location.href = "/Home/"+name;
     },
     go(name,section){
+        // console.log(typeof(section));
       localStorage.setItem("section",JSON.stringify(section));
       window.location.href = "/Home/"+name;
     },
     add_shelf(){
-      const that = this;
-      if (localStorage.getItem("email")==""||'@Session["email"]'==''){
+        if (this.book.sections.length==0) {
+            this.$message("该书籍暂无资源");
+            return;
+        }
+        const that = this;
+        if (localStorage.getItem("email")==""||'@Session["email"]'==''){
           this.$confirm('未登录?', '是否前往登录', {
               confirmButtonText: '确定',
               cancelButtonText: '取消',
@@ -206,31 +210,33 @@ new Vue ({
       done();
     }
   },
-  mounted() {
-    //检查是否登录
+  created() {
+    // 检查是否登录
     const email = localStorage.getItem("email");
     if (email!=undefined&&email!=""&&'@Session["email"]'!=''){
         this.hasLogin = true;
         this.user.name = localStorage.getItem("name");
     }else{
       this.hasLogin = false;
+      window.location.href = "/Home/login";
+      return;
     }
-    
-    const book = JSON.parse(localStorage.getItem("book"));
-    console.log(book)
-    const that = this;
-    axios({
-        method: 'get',
-        url: "/Detail/GetBook?b_id="+book.id
-      })
-          .then(res => {
-            that.book = res.data;
-            console.log(res.data);
-            that.get_comment();
-          })
-          .catch(err => {
-            console.log(err);
-          });
+  },
+  mounted() {
+      const book = JSON.parse(localStorage.getItem("book"));
+      const that = this;
+      axios({
+          method: 'get',
+          url: "/Detail/GetBook?b_id="+book.id
+        })
+            .then(res => {
+              that.book = res.data;
+              console.log(res.data);
+              that.get_comment();
+            })
+            .catch(err => {
+              console.log(err);
+            });
   }
 })
 </script>

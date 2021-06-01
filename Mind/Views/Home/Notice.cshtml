@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>书架</title>
+    <title>公告</title>
     <link rel="stylesheet" href="~/Content/ElementUI/element-ui.css">
     <link rel="stylesheet" href="~/Content/notice.css">
     <script src="~/Scripts/vue.min.js"></script>
@@ -67,10 +67,25 @@
     </div>
     <div class="notice-right">
       <div class="latest-notice">
-        
+        <strong>最新公告</strong>
+        <div id="scrollUpBox">
+          <ul id="content">
+            <li v-for="notice in notices">{{notice.NTitle}}</li>
+            <li v-for="notice in notices">{{notice.NTitle}}</li>
+          </ul>
+        </div>
       </div>
+      <strong>发送公告</strong>
       <div class="send-notice">
-        
+        <el-input v-model="form.title" placeholder="书名或其它关键信息">
+          <template slot="prepend">标题</template>
+        </el-input>
+        <el-input
+          type="textarea"
+          :rows="5"
+          v-model="form.content" placeholder="详细描述，写得好得到反馈的机会会更大哦!!">
+        </el-input>
+        <el-button type="primary" v-on:click="onSubmit" style="width: 100%">发布</el-button>
       </div>
     </div>
   </div>
@@ -136,22 +151,36 @@ new Vue({
       this.go('detail',item);
     },
     querySearchAsync(queryString, cb) {
+      const that = this;
       axios({
             method: 'get',
             url: '/Index/GetSearchBooks?query='+queryString+"&limit=10"
           })
               .then(res => {
                 console.log(res);
+                that.books = res.data;
                 cb(res.data);
               })
               .catch(err => {
                 console.log(err);
               });
     },
-    go(name){
+    go(name,book){
+      localStorage.setItem("book",JSON.stringify(book));
       window.open("/Home/"+name);
     },
     onSubmit(){
+      if (localStorage.getItem("email")==""||'@Session["email"]'==''){
+          this.$confirm('是否前往登录', '未登录?', {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              type: 'warning'
+          }).then(() => {
+              window.location.href = "/Home/Login"
+          }).catch(() => {
+          });
+          return;
+      }
       axios({
           method: 'get',
           url: '/Notice/AddNotice?email='+localStorage.getItem("email")+"&title="+this.form.title+"&content="+this.form.content
@@ -175,27 +204,29 @@ new Vue({
         this.user.name = localStorage.getItem("name");
     }else{
       this.hasLogin = false;
+      window.location.href = "/Home/login";
+      return;
     }
     this.getNotices('/Notice/GetNotices')
   },
   mounted() {
-    // var scrollUpBox = document.getElementById('scrollUpBox');
-    // var content = document.getElementById('content');
-    // function scrollUp() {
-    //     if (scrollUpBox.scrollTop >= (content.clientHeight - scrollUpBox.clientHeight)) {
-    //         scrollUpBox.scrollTop = 0;
-    //     } else {
-    //         scrollUpBox.scrollTop++;
-    //     }
-    // }                
-    // var TIME = 50;
-    // var timer = setInterval(scrollUp, TIME);
-    // scrollUpBox.onmouseover = function() {
-    //     clearInterval(timer);
-    // }
-    // scrollUpBox.onmouseout = function() {
-    //     timer = setInterval(scrollUp, TIME);
-    // }
+    var scrollUpBox = document.getElementById('scrollUpBox');
+    var content = document.getElementById('content');
+    function scrollUp() {
+        if (scrollUpBox.scrollTop >= (content.clientHeight - scrollUpBox.clientHeight)) {
+            scrollUpBox.scrollTop = 0;
+        } else {
+            scrollUpBox.scrollTop++;
+        }
+    }                
+    var TIME = 50;
+    var timer = setInterval(scrollUp, TIME);
+    scrollUpBox.onmouseover = function() {
+        clearInterval(timer);
+    }
+    scrollUpBox.onmouseout = function() {
+        timer = setInterval(scrollUp, TIME);
+    }
   }
 })
 </script>

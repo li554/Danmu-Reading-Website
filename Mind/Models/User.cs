@@ -15,7 +15,7 @@ namespace Mind.Models
             {
                 var sql = $"select * from book_schema.t_user where email='{email}'";
                 var user = _database.Fetch(sql);
-                JObject data = null;
+                var data = new JObject();
                 //判断是否查询到有数据
                 if (user.Read())
                 {
@@ -24,10 +24,25 @@ namespace Mind.Models
                         {"email", (string) user["email"]},
                         {"avatar", (string) user["avatar"]},
                         {"name", (string) user["name"]},
-                        {"pass", (string) user["pass"]}
+                        {"pass", (string) user["pass"]},
+                        {"isManager",false}
                     };
+                    user.Close();
                 }
-                user.Close();
+                else
+                {
+                    user.Close();
+                    sql = $"select * from book_schema.t_manager where id='{email}'";
+                    var manager = _database.Fetch(sql);
+                    if (manager.Read())
+                    {
+                        data.Add("isManager",true);
+                        data.Add("pass",(string) manager["pass"]);
+                        data.Add("email",email);
+                        data.Add("name","管理员");
+                    }
+                    manager.Close();
+                }
                 _database.Close();
                 return data;
             }

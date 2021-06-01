@@ -14,24 +14,21 @@
 <div id="app">
   @RenderPage("~/Views/Shared/header.cshtml")
   <div class="shelf">
-    <el-row style="width: 100%;margin: 0" :gutter="60">
-      <el-col v-for="book in books" :key="book.id" :span="8">
-        <el-card style="margin-bottom: 20px">
-          <div class="grid-content">
-            <el-image :src="book.url"></el-image>
-            <div class="grid-item-info">
-              <span>{{book.author}}</span>
-              <span>{{book.name}}</span>
-              <div>{{book.intro.trim()}}</div>
-            </div>
+    <div style="position: fixed;left: 90%;display: flex;flex-direction: column;">
+      <el-button type="primary" icon="el-icon-delete" v-on:click="mode=!mode;clearMask();" circle v-if="!mode"></el-button>
+      <el-button type="primary" v-on:click="deleteBooks" v-if="mode">提交</el-button>
+      <br/>
+      <el-button type="primary" v-on:click="mode=false;clearMask();" v-if="mode">取消</el-button>
+    </div>
+    <div class="shelf-grid">
+      <el-card v-for="book in books" :key="book.id" >
+        <div class="grid-content" v-on:click="dog('read',book)" style="position: relative">
+          <el-image :src="book.url" :style="mode?'filter:brightness(0.5)':''"></el-image>
+          <svg t="1622507415566" style="position: absolute;" v-if="mode&&masks.get(book.id)" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3813" width="20" height="20"><path d="M512 512m-512 0a512 512 0 1 0 1024 0 512 512 0 1 0-1024 0Z" fill="#1AC44D" p-id="3814" data-spm-anchor-id="a313x.7781069.0.i10" class="selected"></path><path d="M421.12 619.861333l271.573333-271.530666a42.666667 42.666667 0 0 1 60.330667 60.330666l-297.173333 297.173334a42.666667 42.666667 0 0 1-64.554667 4.864l-120.661333-120.704a42.666667 42.666667 0 1 1 60.330666-60.330667l90.197334 90.197333z" fill="#FFFFFF" p-id="3815"></path></svg>
+          <svg t="1622507111753" style="position: absolute;" v-if="mode&&!masks.get(book.id)" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3669" width="20" height="20"><path d="M512 64C262.4 64 64 262.4 64 512s198.4 448 448 448 448-198.4 448-448-198.4-448-448-448z m0 832c-211.2 0-384-172.8-384-384s172.8-384 384-384 384 172.8 384 384-172.8 384-384 384z" p-id="3670"></path><path d="M684.8 390.4L448 627.2 345.6 524.8c-12.8-12.8-32-12.8-44.8-6.4-12.8 12.8-12.8 32 0 44.8l128 128 6.4 6.4h38.4s6.4 0 6.4-6.4l256-256c12.8-12.8 12.8-32 0-44.8-19.2-12.8-44.8-12.8-51.2 0z" p-id="3671"></path></svg>
           </div>
-          <div class="grid-bottom-bar">
-            <el-button type="text" v-on:click="go('detail',book)" class="reg_link">详情</el-button>
-            <el-button type="text" v-on:click="go('read',book)" class="reg_link">阅读</el-button>
-          </div>
-        </el-card>
-      </el-col>
-    </el-row>
+      </el-card>
+    </div>
   </div>
 </div>
 <script>
@@ -45,7 +42,9 @@ new Vue({
         name:"guest",
         avatar:"/Content/images/img.png"
       },
-      books:[]
+      books:[],
+      masks:new Map(),
+      mode:false
     }
   },
   methods:{
@@ -65,10 +64,28 @@ new Vue({
                 console.log(err);
               });
     },
+    dog(name,book){
+      if (!this.mode){
+        this.go(name, book);
+      }else{
+        if (this.masks.get(book.id)===undefined||!this.masks.get(book.id)){
+          this.masks.set(book.id, true);
+        }else{
+          this.masks.set(book.id, false);
+        }
+        this.mode = !this.mode;
+        this.mode = !this.mode;
+      }
+    },
+    clearMask(){
+      this.masks.clear();
+    },
     go(name,book){
       //重置localStorage的section信息，加载为最新章节
-      localStorage.setItem("book",JSON.stringify(book));
-      localStorage.setItem("section",JSON.stringify(book.section))
+      if (book!==undefined&&book["section"]!==undefined){
+        localStorage.setItem("book",JSON.stringify(book));
+        localStorage.setItem("section",JSON.stringify(book.section))
+      }
       window.open("/Home/"+name);
     },
     getShelfBooks(){
@@ -84,6 +101,33 @@ new Vue({
             .catch(err => {
               console.log(err);
             });
+    },
+    deleteBooks(){
+      const that = this;
+      this.$confirm('确认删除?', '', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+      }).then(() => {
+          const bids = [];
+          this.masks.forEach(function(value,key){
+    　　　　　　if (value){
+                bids.push(key)
+              }
+    　　　 });
+          axios({
+              method: 'get',
+              url: "/Shelf/DeleteShelfBooks?email="+localStorage.getItem("email")+"&bids="+JSON.stringify(bids)
+            })
+                .then(res => {
+                  console.log(res.data);
+                  that.books = res.data;
+                })
+                .catch(err => {
+                  console.log(err);
+                });
+      }).catch(() => {
+      });
     }
   },
   created() {
@@ -94,6 +138,8 @@ new Vue({
         this.user.name = localStorage.getItem("name");
     }else{
       this.hasLogin = false;
+      window.location.href = "/Home/login";
+      return;
     }
     //根据用户id获取书架数据
     const that = this;

@@ -160,7 +160,7 @@ const app = new Vue ({
             
             danmuList:[],
             danmuData:[],
-            show_danmu_flag:false,
+            show_danmu_flag:true,
             range:null,
             dm:null,
             light_flag:true
@@ -355,15 +355,6 @@ const app = new Vue ({
             }
         },
         get_section(){
-            const book = JSON.parse(localStorage.getItem("book"));
-            const section = JSON.parse(localStorage.getItem("section"));
-            let url = "";
-            console.log(section);
-            if (section==null){
-                url = '/Read/GetSection?b_id='+book.id
-            }else if (section["content"]===""){
-                url = '/Read/GetSection?b_id='+book.id+'&s_id='+section.id;
-            }
             const that = this;
             const loading = this.$loading({
                 lock: true,
@@ -371,6 +362,22 @@ const app = new Vue ({
                 spinner: 'el-icon-loading',
                 background: 'rgba(0, 0, 0, 0.7)'
             });
+            const book = JSON.parse(localStorage.getItem("book"));
+            const section = JSON.parse(localStorage.getItem("section"));
+            let url = "";
+            console.log(section);
+            if (section.id===-1){
+                url = '/Read/GetSection?b_id='+book.id
+            }else if (section["content"]===""){
+                url = '/Read/GetSection?b_id='+book.id+'&s_id='+section.id;
+            }else{
+                loading.close();
+                that.section = section;
+                //获取弹幕
+                that.get_danmu();
+                document.getElementsByClassName("read")[0].scrollTop = 0;
+                return;
+            }
             axios({
                 method: 'get',
                 url: url
@@ -433,6 +440,7 @@ const app = new Vue ({
             })
                 .then(res => {
                     that.book = res.data;
+                    console.log(that.book)
                 })
                 .catch(err => {
                     console.log(err);

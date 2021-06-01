@@ -90,11 +90,16 @@ const login = new Vue ({
                 .then(res => {
                   console.log(res);
                   if (res.data.code!==-1){
-                      if (res.data.code===0){
+                      if (res.data.code===0) {
                           //登录成功，保存用户数据
                           localStorage.setItem("email",res.data.user.email);
                           localStorage.setItem("name",res.data.user.name);
                           localStorage.setItem("avatar",res.data.user.avatar);
+                      }else if (res.data.code===2){
+                          localStorage.setItem("email",res.data.user.email);
+                          localStorage.setItem("name",res.data.user.name);
+                          window.location.href = "/Home/Upload";
+                          return;
                       }
                       if (document.referrer === '')
                           window.location.href = "/Home/Index";

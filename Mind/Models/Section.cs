@@ -89,5 +89,26 @@ namespace Mind.Models
                return "";
             }
         }
+
+        public int AddSections(int bid,string filepath)
+        {
+            try
+            {
+                _database.Open();
+                
+                //打开文件
+                
+                
+                
+                
+                
+                _database.Close();
+            }
+            catch (Exception e)
+            {
+                _database.Close();
+            }
+            return 0;
+        }
     }
 }

@@ -39,13 +39,11 @@ namespace Mind.Models
             {
                 var cmd = new SqlCommand(sql, sqlConnection);
                 var code = cmd.ExecuteNonQuery();
-                sqlConnection.Close();
                 return code;
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
-                sqlConnection.Close();
                 return -1;
             }
         }

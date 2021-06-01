@@ -64,5 +64,23 @@ namespace Mind.Models
                 return -1;
             }
         }
+
+        public int DeleteBooks(string email,string bids)
+        {
+            _database.Open();
+            try
+            {
+                var sql = $"delete from book_schema.t_shelf where u_email='{email}' and id in {bids}";
+                var code = _database.Update(sql);
+                _database.Close();
+                return code;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                _database.Close();
+                return -1;
+            }
+        }
     }
 }

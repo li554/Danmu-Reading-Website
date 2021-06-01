@@ -122,6 +122,30 @@ namespace Mind
                 url:"{controller}/{action}/{id}",
                 defaults: new {controller = "Notice", action = "AddNotice"}
             );
+            
+            routes.MapRoute(
+                name:"DeleteShelfBooks",
+                url:"{controller}/{action}/{id}",
+                defaults: new {controller = "Shelf", action = "DeleteShelfBooks"}
+            );
+            
+            routes.MapRoute(
+                name:"Upload",
+                url:"{controller}/{action}/{id}",
+                defaults: new {controller = "Home", action = "Upload"}
+            );
+            
+            routes.MapRoute(
+                name:"UploadBook",
+                url:"{controller}/{action}/{id}",
+                defaults: new {controller = "Upload", action = "UploadBook"}
+            );
+            
+            routes.MapRoute(
+                name:"UploadTxt",
+                url:"{controller}/{action}/{id}",
+                defaults: new {controller = "Upload", action = "UploadTxt"}
+            );
         }
     }
 }

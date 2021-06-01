@@ -14,7 +14,6 @@
 <body>
 <div id="app">
   @RenderPage("~/Views/Shared/header.cshtml")
-  @* <p class="microsoft marquee">{{notices}}</p> *@
   <div class="shadow">
     <el-carousel :interval="4000" type="card" height="200px">
       <el-carousel-item v-for="book in carousel_books" :key="book.url">
@@ -62,12 +61,10 @@ new Vue ({
       books: [],
       carousel_books:[],
       state:"",
-      restaurants:[],
       user:{
         name:"guest",
         avatar:"/Content/images/img.png"
       },
-      // notices:""
     };
   },
   methods: {
@@ -90,25 +87,9 @@ new Vue ({
     go(name,book){
       console.log(book);
       localStorage.setItem("book",JSON.stringify(book))
-      // localStorage.setItem("section",JSON.stringify(book.section))
+      localStorage.setItem("section",JSON.stringify({id:-1}))
       window.location.href = "/Home/"+name;
-    },
-    // getNotices(url){
-    //   const that = this;
-    //   axios({
-    //       method: 'get',
-    //       url: url
-    //     })
-    //         .then(res => {
-    //           console.log(res);
-    //           for (const notice of res.data){
-    //             that.notices += notice.NTitle+"   ";
-    //           }
-    //         })
-    //         .catch(err => {
-    //           console.log(err);
-    //         });
-    // }
+    }
   },
   mounted(){
     const that = this;
@@ -134,8 +115,8 @@ new Vue ({
         this.user.name = localStorage.getItem("name");
     }else{
       this.hasLogin = false;
+      window.location.href = "/Home/login";
     }
-    // this.getNotices('/Notice/GetNotices')
   }
 })
 </script>

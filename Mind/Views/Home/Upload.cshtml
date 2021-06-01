@@ -1,0 +1,148 @@
+﻿<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>书架</title>
+    <link rel="stylesheet" href="~/Content/ElementUI/element-ui.css">
+    <link rel="stylesheet" href="~/Content/upload.css">
+    <script src="~/Scripts/vue.min.js"></script>
+    <script src="~/Scripts/axios.min.js"></script>
+    <script src="~/Scripts/ElementUI/element-ui.js"></script>
+</head>
+<body>
+<div id="app">
+  @RenderPage("~/Views/Shared/header.cshtml")
+  <div class="upload">
+    <el-form ref="form" :model="form" label-width="40px">
+      <el-form-item label="书名">
+        <el-input placeholder="书名" name="name" v-model="form.name"></el-input>
+      </el-form-item>
+      <el-form-item label="作者">
+        <el-input placeholder="作者" name="author" v-model="form.author"></el-input>
+      </el-form-item>
+      <el-form-item label="类型">
+        <el-select placeholder="请选择类型" name="type" v-model="form.type">
+          <el-option :label="type" :value="type" v-for="type in typeList"></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="简介">
+        <el-input type="textarea" :rows="5"
+                  name="intro" placeholder="简介" v-model="form.intro"></el-input>
+      </el-form-item>
+      <el-form-item>
+        <el-upload
+          class="upload-demo"
+          drag
+          action="/Upload/UploadTxt"
+          multiple>
+          <i class="el-icon-upload"></i>
+          <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+          <div class="el-upload__tip" slot="tip">只能上传txt文件</div>
+        </el-upload>
+        <el-upload
+          class="avatar-uploader"
+          action="/Upload/UploadTxt"
+          :show-file-list="false"
+          :on-success="handleAvatarSuccess"
+          :before-upload="beforeAvatarUpload">
+          <img v-if="imageUrl" :src="imageUrl" class="avatar">
+          <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+          <div class="el-upload__tip" slot="tip">上传封面</div>
+        </el-upload>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" v-on:click="onSubmit()">提交</el-button>
+      </el-form-item>
+    </el-form>
+  </div>
+</div>
+<script>
+new Vue({
+  el: "#app",
+  data(){
+    return{
+      state:"",
+      hasLogin: false,
+      user:{
+        name:"guest",
+        avatar:"/Content/images/img.png"
+      },
+      books:[],
+      form:{
+        name:"",
+        author:"",
+        intro:"",
+        type:""
+      },
+      imageUrl:"",
+      typeList:["古典文学","历史军事","武侠小说","文学","影视文学","传记纪实","玄幻奇幻","自然科学",
+      "教育","当代现代","外文","科幻灵异","网游竞技","外国文学","都市青春","社科","少儿","韩流青春","修真仙侠","党建","传记","童话故事","哲学","台言古言","其它类型"]
+    }
+  },
+  methods:{
+    handleAvatarSuccess(res, file) {
+      this.imageUrl = URL.createObjectURL(file.raw);
+    },
+    beforeAvatarUpload(file) {
+      const isLt2M = file.size / 1024 / 1024 < 2;
+      if (!isLt2M) {
+        this.$message.error('上传头像图片大小不能超过 2MB!');
+      }
+      return isLt2M;
+    },
+    handleSearchSelect(item) {
+      this.go('detail',item);
+    },
+    querySearchAsync(queryString, cb) {
+      axios({
+            method: 'get',
+            url: '/Index/GetSearchBooks?query='+queryString+"&limit=10"
+          })
+              .then(res => {
+                cb(res.data);
+              })
+              .catch(err => {
+                console.log(err);
+              });
+    },
+    go(name,book){
+      //重置localStorage的section信息，加载为最新章节
+      if (book!==undefined&&book["section"]!==undefined){
+        localStorage.setItem("book",JSON.stringify(book));
+        localStorage.setItem("section",JSON.stringify(book.section))
+      }
+      window.open("/Home/"+name);
+    },
+    onSubmit(){
+       axios({
+             method: 'get',
+             url: '/Upload/UploadBook?name='+this.form.name+"&author="+this.form.author+"&intro="+this.form.intro+"&type="+this.form.type
+           })
+               .then(res => {
+                 console.log(res.data);
+               })
+               .catch(err => {
+                 console.log(err);
+               });
+    }
+  },
+  created() {
+    //检查是否登录
+    const email = localStorage.getItem("email");
+    if (email!=undefined&&email!=""&&'@Session["email"]'!=''){
+        this.hasLogin = true;
+        this.user.name = localStorage.getItem("name");
+    }else{
+      this.hasLogin = false;
+      window.location.href = "/Home/login";
+      return;
+    }
+  },
+  mounted() {
+    
+  }
+})
+</script>
+</body>
+</html>

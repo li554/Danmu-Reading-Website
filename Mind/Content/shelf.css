@@ -1,4 +1,14 @@
 ﻿@import "Site.css";
+
+.shelf{
+    margin-top: 80px;
+}
+
+.shelf-grid{
+    display: flex;
+    gap: 40px;
+    flex-wrap: wrap;
+}
 .grid-content {
     border-radius: 4px;
     min-height: 36px;
@@ -8,7 +18,7 @@
 
 .grid-content .el-image {
     width: 100px;
-    height: 100px;
+    height: 140px;
 }
 
 .grid-content .grid-item-info {
